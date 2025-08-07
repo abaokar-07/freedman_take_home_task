@@ -3,7 +3,6 @@ from load_split_pdf import Load_And_Split_PDF
 from load_dwnld_embed import Load_And_Dwnld_Embed
 from load_create_vector_db import Load_Create_Vector_DB
 from load_dwnld_llm import Load_And_Dwnld_LLM
-from context_prompt_builder import Context_Prompt_Builder
 from huggingface_hub import login
 import gradio as gr
 from transformers import AutoConfig

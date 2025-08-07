@@ -7,3 +7,4 @@ Setup instructions:
     b. faiss-cpu needs numpy version 1.26.0 ro run
 3. Open the file "config_qa.py". In this file, replace your Hugging Face token and also set the folder paths for the cache so that after the first time, model will load from the cache
 4. Run the file "main.py". The terminal will generate a local link for the gradio app where the question answering UI will be present.
+5. For the first time, the model artifacts will be downloaded because it is not possible to upload the model weights to github (maximum file size can be 25MB only). Inference from hubs like hugging face is paid even for lighter models and the free version of OpenAI does not allow longer length of prompts. Therefore, the download has to happen for the first time. After that, caching is done in the code so it will load everything automatically.

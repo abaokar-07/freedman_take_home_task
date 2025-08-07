@@ -4,10 +4,10 @@ from load_dwnld_embed import Load_And_Dwnld_Embed
 from load_create_vector_db import Load_Create_Vector_DB
 from load_dwnld_llm import Load_And_Dwnld_LLM
 from context_prompt_builder import Context_Prompt_Builder
-from gradio_qa import Gradio_QA
+from huggingface_hub import login
 import gradio as gr
 from transformers import AutoConfig
-import logging
+import logging, base64
 
 logging.basicConfig(
     level=logging.INFO,
@@ -28,10 +28,9 @@ VECTOR_DB_NAME = config.VECTOR_DB_NAME
 VECTOR_DB_PATH = config.VECTOR_DB_PATH
 DEVICE = config.device
 MAX_CONTENT_TOKENS = config.max_content_tokens
-HF_TOKEN = "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"
+HF_TOKEN = config.HF_TOKEN
 MODEL_FOLDER_NAME = config.MODEL_FOLDER_NAME
 
-from huggingface_hub import login
 login(HF_TOKEN)
 
 load_split_pdf = Load_And_Split_PDF(DOCS_PICKLE_PATH)
@@ -68,7 +67,6 @@ def get_context_from_query(query, k, max_context_tokens=MAX_CONTENT_TOKENS):
     tokens = tokenizer(combined_text, return_tensors="pt", truncation=False).input_ids[0]
 
     if len(tokens) > max_context_tokens:
-        # tokens = tokens[-max_context_tokens:]
         tokens = tokens[:max_context_tokens]
         combined_text = tokenizer.decode(tokens, skip_special_tokens=True)
         logging.debug("Context truncated to %d tokens", max_context_tokens)
@@ -85,7 +83,6 @@ Answer:"""
 
 model_config = AutoConfig.from_pretrained(LLM_MODEL_NAME)
 
-# ✅ QA Function (Non-streaming)
 def ask_question_safe(query):
     try:
         if not model_config.is_encoder_decoder:
@@ -140,17 +137,14 @@ def ask_question_safe(query):
     except Exception as e:
         return f"Error during generation: {e}"
 
-# ✅ Gradio UI
 with gr.Blocks() as demo:
-    gr.Markdown("## 📘 PDF Q&A Assistant")
+    gr.Markdown("## PDF Q&A Assistant")
     
     with gr.Row():
         with gr.Column():
-            question_input = gr.Textbox(lines=1, label="❓ Ask a question")
-            answer_output = gr.Textbox(lines=10, label="💬 Answer", interactive=False)
+            question_input = gr.Textbox(lines=1, label="Ask a question")
+            answer_output = gr.Textbox(lines=10, label="Answer", interactive=False)
             question_input.submit(fn=ask_question_safe, inputs=question_input, outputs=answer_output)
-
-        import base64
 
         def encode_pdf_to_base64(pdf_path):
             logging.info("Encoding the PDF file for preview purposes!")
@@ -159,7 +153,7 @@ with gr.Blocks() as demo:
             return f"data:application/pdf;base64,{encoded}"
 
         with gr.Column():
-            gr.Markdown("### 📄 PDF Preview")
+            gr.Markdown("### PDF Preview")
 
             encoded_pdf = encode_pdf_to_base64(PDF_PATH)
             pdf_iframe = f"""
@@ -174,6 +168,3 @@ with gr.Blocks() as demo:
 
 logging.info("Launching the gradio app!")
 demo.launch()
-
-# gradioqa = Gradio_QA(model, tokenizer, PDF_PATH, 5, MAX_CONTENT_TOKENS, vector_store)
-# gradioqa.launch()

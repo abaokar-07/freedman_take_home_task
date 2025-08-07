@@ -1,0 +1,9 @@
+transformers>=4.40.0
+sentence-transformers>=2.2.2
+langchain>=0.1.16
+faiss-cpu>=1.7.4
+faiss-gpu>=1.7.4
+huggingface-hub>=0.21.4
+pypdf>=3.17.4
+torch>=2.1.0
+gradio>=4.25.0
